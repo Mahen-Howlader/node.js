@@ -1,4 +1,4 @@
-// console.log(process.argv);
+console.log(process);
 
 const path = require("path");
 const fs = require("fs");
