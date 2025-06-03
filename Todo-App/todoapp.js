@@ -7,9 +7,11 @@ const filePath = path.join(__dirname, "./db/todo.json");
 const server = http.createServer((req, res) => {
     // get todo data and 
     // Post todo data 
+    const pathName = new URL(req.url, `http://${req.headers.host}`)
+    const pathname = pathName?.pathname;
 
     // GET ALL TODO?
-    if (req.url === "/todos" && req.method === "GET") {
+    if (pathname === "/todos" && req.method === "GET") {
         const data = fs.readFileSync(filePath, { encoding: "utf-8" })
         res.writeHead(200, {
             'Content-Type': 'application/json',
@@ -20,7 +22,7 @@ const server = http.createServer((req, res) => {
 
     }
     // POST TODO?
-    else if (req.url === "/todos/create-todo" && req.method === "POST") {
+    else if (pathname === "/todos/create-todo" && req.method === "POST") {
         let data = "";
         req.on("data", (chunk) => {
             data = data + chunk;
@@ -33,9 +35,21 @@ const server = http.createServer((req, res) => {
             const parseAllTodo = JSON.parse(alltodos);
             parseAllTodo.push({ name, price, createAt });
 
-            fs.writeFileSync(filePath, JSON.stringify(parseAllTodo), { encoding: "utf-8" });
-            res.end(JSON.stringify({ name, price, createAt }))
+            fs.writeFileSync(filePath, JSON.stringify(parseAllTodo, null, 2), { encoding: "utf-8" });
+            res.end(JSON.stringify({ name, price, createAt }, null, 2))
         })
+    }
+    // get single todo 
+    else if (pathname === "/todo" && req.method === "GET") {
+        const search = pathName?.searchParams.get("title");
+        const data = fs.readFileSync(filePath, {encoding : "utf-8"});
+        const parseData = JSON.parse(data);
+        const todo = parseData.find((todo) => todo.name === search);
+        const stringify = JSON.stringify(todo);
+        res.writeHead(200, {
+            "content-type" : "application/json"
+        })
+        res.end(stringify);
     }
 
     // else 
