@@ -9,7 +9,7 @@ const server = http.createServer((req, res) => {
     // Post todo data 
     const pathName = new URL(req.url, `http://${req.headers.host}`)
     const pathname = pathName?.pathname;
-
+    // console.log(pathName)
     // GET ALL TODO?
     if (pathname === "/todos" && req.method === "GET") {
         const data = fs.readFileSync(filePath, { encoding: "utf-8" })
@@ -42,14 +42,49 @@ const server = http.createServer((req, res) => {
     // get single todo 
     else if (pathname === "/todo" && req.method === "GET") {
         const search = pathName?.searchParams.get("title");
-        const data = fs.readFileSync(filePath, {encoding : "utf-8"});
+        const data = fs.readFileSync(filePath, { encoding: "utf-8" });
         const parseData = JSON.parse(data);
         const todo = parseData.find((todo) => todo.name === search);
         const stringify = JSON.stringify(todo);
         res.writeHead(200, {
-            "content-type" : "application/json"
+            "content-type": "application/json"
         })
         res.end(stringify);
+    }
+
+    // update todo 
+    else if (pathname === "/todos/update_todo" && req.method === "PATCH") {
+        const nameUser = pathName?.searchParams.get("title");
+        let data = "";
+        req.on("data", (chunk) => {
+            data = data + chunk;
+        })
+
+        req.on("end", () => {
+            const { name, price } = JSON.parse(data);
+            // console.log(price)
+            const alltodos = fs.readFileSync(filePath, { encoding: "utf-8" });
+            const parseAllTodo = JSON.parse(alltodos);
+            const findTodo = parseAllTodo.findIndex((todo) => todo.name === nameUser);
+            parseAllTodo[findTodo].name = name;
+
+
+            fs.writeFileSync(filePath, JSON.stringify(parseAllTodo, null, 2), { encoding: "utf-8" })
+
+            // send 
+
+            res.end(JSON.stringify({ nameUser, price, createAt: parseAllTodo[findTodo].createAt }, null, 2))
+        })
+
+    }
+    // delete todo 
+    else if (pathname === "/todo/delete_todo" && req.method === "DELETE") {
+        const title = pathName.searchParams.get("title");
+        const data = fs.readFileSync(filePath, { encoding: "utf-8" });
+        const dataParese = JSON.parse(data);
+        const filter = dataParese.filter((todo) => todo?.name !== title);
+        fs.writeFileSync(filePath, JSON.stringify(filter, null, 2), { encoding: "utf-8" })
+        res.end("delete file")
     }
 
     // else 

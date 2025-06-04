@@ -1,21 +1,11 @@
 [
   {
-    "id": 101,
-    "name": "Laptop",
-    "price": 999
-  },
-  {
     "id": 102,
-    "name": "Phone",
+    "name": "mahin howlader",
     "price": 499
   },
   {
-    "name": "mahin",
-    "price": 1000000000000,
-    "createAt": "6/3/2025, 7:45:46 PM"
-  },
-  {
-    "name": "antor",
+    "name": "raju",
     "price": 122323,
     "createAt": "6/3/2025, 8:07:32 PM"
   }
